@@ -1,14 +1,7 @@
 import express from "express";
-/*import path from "path";
-import bodyParser from "body-parser";
-import cors from "cors";*/
 import dotenv from "dotenv";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 import connectDB from "./config/db.js";
-
-
-
+import userRouter from "./routes/UserRoute.js";
 
 dotenv.config({ path: "./config/.env" });
 
@@ -19,5 +12,6 @@ connectDB();
 server.listen(process.env.PORT, () => {
   console.log(`Serveur écoute le port ${process.env.PORT}`);
 });
+server.use("/", userRouter);
 
 export default server;
