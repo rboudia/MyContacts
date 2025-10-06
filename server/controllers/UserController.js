@@ -1,13 +1,10 @@
-import User from "../model/User.js";
+import User from "../models/User.js";
 
-exports.registerUser = async (req, res) => {
+export const getAllUsers = async (req, res) => {
     try {
-        const {name} = req.body;
-        const newUser = new User({name});
-        await newUser.save();
-        res.status(200).json({message : 'crée avec succes'});
+        const users = await User.find();
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ error: 'Erreur serveur' });
     }
-    catch(error) {
-        res.status(501).json({error:'Erreur '})
-    }
-}
+};
