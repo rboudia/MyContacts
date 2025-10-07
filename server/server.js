@@ -17,12 +17,7 @@ server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 server.use(express.json());
 
-
 connectDB();
-
-server.get('/', (req, res) => {
-  res.send('Hello World!')
-})
 
 server.use("/", userRouter);
 server.use("/auth", authRouter);
