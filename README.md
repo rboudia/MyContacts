@@ -1,4 +1,4 @@
-# MyContact
+# MyContacts
 
 **MyContacts** est une application web permettant aux utilisateurs de gérer leurs contacts personnels de manière simple et rapide.
 
@@ -23,7 +23,7 @@
 ## 📂 Structure du projet
 
 ```
-MyContact/
+MyContacts/
 │
 ├── client/                  # Frontend React + Vite
 └── server/                  # Backend Node/Express
@@ -33,7 +33,7 @@ MyContact/
 
 ## ⚙️ Prérequis
 
-- Node.js v18+  
+- Node.js v22.12+  
 - npm (fourni avec Node.js)  
 - MongoDB (local ou MongoDB Atlas)
 
