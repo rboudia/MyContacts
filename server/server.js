@@ -17,6 +17,14 @@ server.use(cors(
   {origin: process.env.CORS_ORIGIN,
   credentials: true
 }));
+
+swaggerDocument.servers = [
+  {
+    url: process.env.BASE_URL,
+    description: "Serveur (local ou production)"
+  }
+];
+
 server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 server.use(express.json());
 

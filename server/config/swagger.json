@@ -6,11 +6,21 @@
     "description": "API de gestion des utilisateurs et des contacts avec authentification JWT"
   },
   "servers": [
-    {
-      "url": "http://localhost:3000",
-      "description": "Serveur local"
+  {
+    "url": "{protocol}://{host}",
+    "description": "Serveur",
+    "variables": {
+      "protocol": {
+        "default": "https",
+        "enum": ["http", "https"]
+      },
+      "host": {
+        "default": "mon-domaine.com"
+      }
     }
-  ],
+  }
+]
+,
   "components": {
     "securitySchemes": {
       "bearerAuth": {
