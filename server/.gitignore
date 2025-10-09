@@ -1,9 +1,7 @@
 # Node.js dependencies
+.env
 /node_modules
 package-lock.json
-
-# Environment variables
-config/.env
 
 # OS files
 .DS_Store

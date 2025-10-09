@@ -1,8 +1,12 @@
-import Contact from "../models/Contact.js";
+import { getAllContactsService, 
+    createContactService, 
+    patchContactService, 
+    deleteContactService } from "../services/ContactService.js";
+
 
 export const getAllContacts = async (req, res) => {
     try {
-        const contacts = await Contact.find({ user: req.user.id });
+        const contacts = await getAllContactsService(req.user.id);
         res.status(200).json(contacts);
     } catch (err) {
         res.status(500).json({ error: 'Erreur serveur' });
@@ -11,61 +15,54 @@ export const getAllContacts = async (req, res) => {
 
 export const createContact = async (req, res) => {
     try {
-        const {firstName, lastName, phone} = req.body;
+        const { firstName, lastName, phone } = req.body;
 
-        if (!firstName || !lastName || !phone) {
-            return res.status(400).json({ error: "Tous les champs sont requis" });
+        const contact = await createContactService({ firstName, lastName, phone, userId: req.user.id });
+        res.status(201).json({ message: 'Contact créé avec succès', contact });
+    } catch (error) {
+        if (error.message === "Tous les champs sont requis" 
+            || error.message === "Le numéro doit contenir entre 10 et 20 caractères"
+            || error.message === "Ce numéro est déjà utilisé pour un autre contact.") {
+            res.status(400).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: 'Erreur serveur' });
         }
-
-        const actualUserId = req.user.id;
-        const newContact = new Contact({ 
-            firstName, 
-            lastName, 
-            phone, 
-            user: actualUserId
-        });
-
-        await newContact.save();
-        res.status(201).json({message : 'Contact crée avec succes', contact: { firstName, lastName, phone } });
-    }
-    catch(error) {
-        res.status(501).json({error: 'Erreur'});
     }
 };
 
 export const patchContact = async (req, res) => {
     try {
         const { id } = req.params;
-
         const update = req.body;
 
-        const contact = await Contact.findOneAndUpdate(
-            { _id: id, user: req.userId },
-        update,
-            { new: true }
-        );
-
-        if (!contact) {
-            return res.status(404).json({ message: 'Contact non trouvé.' });
+        const contact = await patchContactService({ id, update, userId: req.user.id });
+        res.status(200).json({ message: 'Contact modifié avec succès', contact });
+    } catch (error) {
+        if (error.message === "Contact non trouvé.") {
+            res.status(404).json({ message: error.message });
+        } else if (
+            error.message === "Le numéro doit contenir entre 10 et 20 caractères" ||
+            error.message === "Ce numéro est déjà utilisé pour un autre contact."
+        ) {
+            res.status(400).json({ message: error.message });
+        } else {
+            console.error(error);
+            res.status(500).json({ error: 'Erreur serveur' });
         }
-        res.status(201).json({message: 'Contact modifé avec succès', contact});
-    }
-    catch(error) {
-        res.status(501).json({error: 'Erreur'});
     }
 };
 
-export const deleteConctact = async(req, res) => {
+export const deleteContact = async (req, res) => {
     try {
         const { id } = req.params;
-        const contact = await Contact.findOneAndDelete({ _id: id, user: req.userId });
-        if (!contact) {
-            return res.status(404).json({ message: 'Contact non trouvé.' });
-        }
 
-        res.status(201).json({ message: 'Contact supprimé.' });
-    } 
-    catch (error) {
-        res.status(500).json({ message: 'Erreur serveur.' });
-  }
+        await deleteContactService({ id, userId: req.user.id });
+        res.status(200).json({ message: 'Contact supprimé.' });
+    } catch (error) {
+        if (error.message === "Contact non trouvé.") {
+            res.status(404).json({ message: error.message });
+        } else {
+            res.status(500).json({ message: 'Erreur serveur.' });
+        }
+    }
 };

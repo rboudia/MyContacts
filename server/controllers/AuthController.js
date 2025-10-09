@@ -1,34 +1,17 @@
-import User from "../models/User.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import { registerUserService, loginUserService } from "../services/AuthService.js";
 
 export const registerUser = async (req, res) => {
     try {
         const {firstName, email, password} = req.body;
 
-        if (!firstName || !email || !password) {
-            return res.status(400).json({ error: "Tous les champs sont requis" });
+        const user = await registerUserService({ firstName, email, password });
+        res.status(201).json({ message: "Utilisateur créé avec succès", user });
+    } catch (error) {
+        if (error.message === "Tous les champs sont requis" || error.message === "Utilisateur déjà existant") {
+            res.status(400).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: "Erreur serveur" });
         }
-
-        const existingUser = await User.findOne({ email });
-
-        if (existingUser) {
-            return res.status(400).json({ error: "Utilisateur déjà existant" });
-        }
-
-        const saltRounds = 10;
-        const hash = bcrypt.hashSync(password, saltRounds);
-
-        const newUser = new User({
-            firstName,
-            email,
-            password: hash
-        });
-        await newUser.save();
-        res.status(200).json({message : 'User crée avec succes', user: { firstName, email } });
-    }
-    catch(error) {
-        res.status(501).json({error: 'Erreur'});
     }
 };
 
@@ -36,26 +19,15 @@ export const loginUser = async (req, res) => {
     try {
         const {email, password} = req.body;
 
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return res.status(400).json({ error: 'Utilisateur inexistant' });
-        }
-
-        const passwordMatch = await bcrypt.compare(password, user.password);
-
-        if (!passwordMatch) {
-            return res.status(401).json({ error: 'Mot de passe incorrect' });
-        }
-
-        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
-            expiresIn: '1h',
-        });
-
+        const token = await loginUserService({ email, password });
         res.status(200).json({ token });
- 
-    }
-    catch(error) {
-        res.status(501).json({error: 'Erreur'});
+    } catch (error) {
+        if (error.message === "Utilisateur inexistant") {
+            res.status(400).json({ error: error.message });
+        } else if (error.message === "Mot de passe incorrect") {
+            res.status(401).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: "Erreur serveur" });
+        }
     }
 };

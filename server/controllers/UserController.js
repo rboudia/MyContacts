@@ -1,9 +1,9 @@
-import User from "../models/User.js";
+import { getAllUsersService } from "../services/UserService.js";
 
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find();
-        res.status(201).json(users);
+        const users = await getAllUsersService();
+        res.status(200).json(users);
     } catch (err) {
         res.status(500).json({ error: 'Erreur serveur' });
     }
